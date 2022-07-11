@@ -1,5 +1,0 @@
-{
-    "extends": "./tsconfig.json",
-    // dist를 넣어줌으로써 여러번 build 시 에러 해결
-    "exclude": ["node_modules", "dist"]
-  }
