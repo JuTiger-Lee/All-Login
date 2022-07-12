@@ -1,9 +1,11 @@
 // tsconfig.json paths를 사용하기 위함
-import 'module-alias/register';
-import app from '@/app';
+import "module-alias/register";
+import "reflect-metadata";
+import app from "@/app";
 
-const {server, port} = app;
+const { server, PORT } = app;
 
-const init = () => server.listen(port, () => console.log(`${port} Server Start!`));
+const init = () =>
+  server.listen(PORT, () => console.log(`${PORT} Server Start!`));
 
 init();
