@@ -1,45 +1,60 @@
-interface MakeResponse {
-    init(code: number, message: string): void;
-    response(): object;
+import { Service } from "typedi";
+
+abstract class MakeResponse<T> {
+  protected code: number;
+  protected message: string;
+  protected response: T;
+
+  constructor(code: number, message: string) {
+    this.code = code;
+    this.message = message;
+  }
+
+  abstract setResponse(): void;
+
+  protected getResponse(): T {
+    return this.response;
+  }
 }
 
-class MakeSuccessResponse implements MakeResponse {
-    public code: number;
-    public message: string;
+@Service()
+export class MakeSuccessResponse extends MakeResponse<{
+  code: number;
+  message: string;
+  data: Array<object>;
+}> {
+  constructor(code: number, message: string) {
+    super(code, message);
+  }
 
-    init(code: number, message: string): void {
-        this.code = code;
-        this.message = message;
-    }
-
-    response(data = []) {
-        return {
-            code: this.code,
-            message: this.message,
-            data,
-        }
-    }
+  // @overload
+  setResponse(data = []) {
+    this.response = {
+      code: this.code,
+      message: this.message,
+      data,
+    };
+  }
 }
 
-class MakeErrorResponse implements MakeResponse {
-    public code: number;
-    public message: string;
+@Service()
+export class MakeErrorResponse extends MakeResponse<Error> {
+  constructor(code: number, message: string) {
+    super(code, message);
+  }
+  1;
 
-    init(code: number, message: string): void {
-        this.code = code;
-        this.message = message;
-    }
+  // @overload
+  setResponse(httpStatus = 500, err = {}, name = "Syntax Error") {
+    const error = new Error();
 
-    response(httpStatus = 500, err = {}, name = 'Syntax Error') {
-        const error = new Error();
+    error["httpStatus"] = httpStatus;
+    error["code"] = this.code;
+    error["err"] =
+      typeof err === "object" && err["stack"] ? (err = String(err)) : err;
+    error.message = this.message;
+    error.name = name;
 
-        error['httpStatus'] = httpStatus;
-        error['code'] = this.code;
-        error['err'] =
-          typeof err === 'object' && err['stack'] ? (err = String(err)) : err;
-        error.message = this.message;
-        error.name = name;
-    
-        return error;
-    }
+    this.response = error;
+  }
 }
