@@ -3,7 +3,14 @@
 ## 시작
 
 1. npm ci
-2. npm run start
+
+### Product Mode Start
+
+- npm run start
+
+### Dev Mode Start
+
+- npm run dev
 
 ## Prisma 사용법
 
