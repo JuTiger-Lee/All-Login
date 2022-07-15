@@ -42,7 +42,6 @@ export class MakeErrorResponse extends MakeResponse<Error> {
   constructor(code: number, message: string) {
     super(code, message);
   }
-  1;
 
   // @overload
   setResponse(httpStatus = 500, err = {}, name = "Syntax Error") {
