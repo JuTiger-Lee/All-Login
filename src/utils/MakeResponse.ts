@@ -37,6 +37,18 @@ export class MakeSuccessResponse extends MakeResponse<{
   }
 }
 
+/** TODO: Warning Class */
+// @Service()
+// export class MakeWarningResponse extends MakeResponse<{}> {
+//   constructor(code: number, message: string) {
+//     super(code, message);
+//   }
+
+//   setResponse() {
+//     return {};
+//   }
+// }
+
 @Service()
 export class MakeErrorResponse extends MakeResponse<Error> {
   constructor(code: number, message: string) {
