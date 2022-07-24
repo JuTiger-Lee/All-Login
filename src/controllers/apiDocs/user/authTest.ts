@@ -5,11 +5,12 @@ export default {
     post: {
       tags: ["User"],
       summary: "인증 Token 테스트 (완료)",
-      // security: [
-      //   {
-      //     bearerAuth: [],
-      //   },
-      // ],
+      // 인증
+      security: [
+        {
+          bearerAuth: [],
+        },
+      ],
       responses: {
         200: {
           description: "인증 성공",
