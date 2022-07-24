@@ -1,10 +1,27 @@
 import { PrismaClient } from "@prisma/client";
-import { Inject, Service } from "typedi";
 import UserRepoable from "@/repos/interfaces/UserRepoable";
+import { Service } from "typedi";
 
 @Service()
 export default class UserRepo implements UserRepoable {
-  constructor(@Inject("Prisma") private readonly prisma: PrismaClient) {
+  constructor(private readonly prisma: PrismaClient) {
     this.prisma = prisma;
+  }
+
+  async findEmail(email: string) {
+    return await this.prisma.user.findFirst({
+      where: {
+        email,
+      },
+    });
+  }
+
+  async createUser({ email, password }: { email: string; password: string }) {
+    await this.prisma.user.create({
+      data: {
+        email,
+        password,
+      },
+    });
   }
 }
