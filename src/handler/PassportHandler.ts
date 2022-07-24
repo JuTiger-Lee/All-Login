@@ -1,13 +1,17 @@
 import passport from "passport";
-import passportJWT, { VerifiedCallback } from "passport-jwt";
+import passportJWT from "passport-jwt";
 import passportLocal from "passport-local";
 import env from "env-var";
+import Container from "typedi";
+import UserServicesable from "@/services/interfaces/UserServicesable";
+import HashHanlder from "./HashHandler";
 
 const JwtStrategy = passportJWT.Strategy;
 const ExtractJwt = passportJWT.ExtractJwt;
 const LocalStrategy = passportLocal.Strategy;
 
 export default class PassportHandler {
+  private userService: UserServicesable;
   private passportOption: {
     usernameField: string;
     passwordField: string;
@@ -23,6 +27,8 @@ export default class PassportHandler {
   };
 
   constructor() {
+    this.userService = Container.get("UserServices");
+
     this.passportOption = {
       usernameField: "email",
       passwordField: "password",
@@ -30,7 +36,7 @@ export default class PassportHandler {
 
     this.jwtOption = {
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: String(env.get("AUTH_KEY").required()),
+      secretOrKey: env.get("AUTH_KEY").asString(),
       ignoreExpiration: false,
       passReqToCallback: false,
     };
@@ -42,16 +48,38 @@ export default class PassportHandler {
   }
 
   private passportVerify() {
-    const verify = (
-      email: string,
-      password: string,
-      done: VerifiedCallback
-    ) => {};
-    passport.use("local", new LocalStrategy(this.passportOption, verify));
+    passport.use(
+      "local",
+      new LocalStrategy(this.passportOption, async (email, password, done) => {
+        const user = await this.userService.getUser(email);
+
+        if (!user) {
+          return done(null, false, { message: "Non Existent User" });
+        }
+
+        const hashHandler = new HashHanlder();
+
+        if (hashHandler.compare(user.password, password)) {
+          return done(null, false, { message: "Wrong Password" });
+        }
+
+        return done(null, user);
+      })
+    );
   }
 
   private jwtVerify() {
-    const verify = (payload: any, done: VerifiedCallback) => {};
-    passport.use("jwt", new JwtStrategy(this.jwtOption, verify));
+    passport.use(
+      "jwt",
+      new JwtStrategy(this.jwtOption, async (payload, done) => {
+        const user = await this.userService.getUser(payload.email);
+
+        if (!user) {
+          return done(null, false, { message: "Unauthorized" });
+        }
+
+        return done(null, user);
+      })
+    );
   }
 }
