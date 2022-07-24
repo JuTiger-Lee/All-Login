@@ -2,8 +2,9 @@ import express from "express";
 import routers from "@/routers/index";
 import passport from "passport";
 import env from "env-var";
-import PassportHandler from "@/handler/PassportHandler";
 import dotenv from "dotenv";
+import PassportHandler from "@/handler/PassportHandler";
+import ApiDocs from "@/controllers/apiDocs/ApiDocs";
 
 class App {
   public readonly server: express.Application;
@@ -14,16 +15,38 @@ class App {
     this.server = express();
   }
 
-  bootstrap() {
+  async bootstrap() {
     this.checkEnv();
+    this.initExpress();
+    this.initSwagger();
     this.initPassport();
     this.setRouter();
   }
 
   private checkEnv() {
     dotenv.config();
-    env.get("DATABASE_URL").required().asString();
-    env.get("AUTH_KEY").required().asString();
+    env.get("NODE_ENV").required();
+    env.get("DATABASE_URL").required();
+    env.get("AUTH_KEY").required();
+  }
+
+  private initExpress() {
+    this.server.use(express.urlencoded({ extended: true }));
+    this.server.use(express.json());
+  }
+
+  private initSwagger() {
+    const apiDocs = new ApiDocs();
+    apiDocs.init();
+    const { swaggerUI, specs, setUpOption } = apiDocs.getSwaggerOption();
+
+    if (env.get("NODE_ENV").asString() !== "production") {
+      this.server.use(
+        "/api-docs",
+        swaggerUI.serve,
+        swaggerUI.setup(specs, setUpOption)
+      );
+    }
   }
 
   private initPassport() {
