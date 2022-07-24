@@ -10,5 +10,5 @@ datasource db {
 model user {
   idx      Int    @id @default(autoincrement())
   email    String @db.VarChar(255)
-  passwrod String @db.VarChar(500)
+  password String @db.VarChar(500)
 }
