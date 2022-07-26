@@ -25,7 +25,7 @@ export default class AuthGuard {
 
         const hashHanlder = new HashHanlder();
 
-        req.user = hashHanlder.decodeToken(req.headers.authorization);
+        req.user = hashHanlder.getDecodeToken(req.headers.authorization);
         console.log("rrr", req.user);
 
         return next();

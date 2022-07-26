@@ -5,6 +5,7 @@ import env from "env-var";
 import Container from "typedi";
 import UserServicesable from "@/services/interfaces/UserServicesable";
 import HashHanlder from "./HashHandler";
+import Context from "@/Context";
 
 const JwtStrategy = passportJWT.Strategy;
 const ExtractJwt = passportJWT.ExtractJwt;
@@ -27,7 +28,7 @@ export default class PassportHandler {
   };
 
   constructor() {
-    this.userService = Container.get("UserServices");
+    this.userService = Container.get(Context.USER_SERVICES);
 
     this.passportOption = {
       usernameField: "email",

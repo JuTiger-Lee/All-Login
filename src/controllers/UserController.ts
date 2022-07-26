@@ -14,8 +14,8 @@ export default class UserController extends Context {
 
   constructor() {
     super();
-    this.userServices = Container.get("UserServices");
-    this.makeSuccessResponse = Container.get("MakeSuccessResponse");
+    this.userServices = Container.get(Context.USER_SERVICES);
+    this.makeSuccessResponse = Container.get(Context.MAKE_SUCCESS_RESPONSE);
   }
 
   async signUp(

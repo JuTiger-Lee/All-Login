@@ -1,3 +1,4 @@
+import Context from "@/Context";
 import UserRepoable from "@/repos/interfaces/UserRepoable";
 import UserServicesable from "@/services/interfaces/UserServicesable";
 import { ErrorResponseable } from "@/utils/make-response";
@@ -9,8 +10,8 @@ export default class UserServices implements UserServicesable {
   private readonly makeErrorResponse: ErrorResponseable;
 
   constructor() {
-    this.userRepo = Container.get("UserRepo");
-    this.makeErrorResponse = Container.get("MakeErrorResponse");
+    this.userRepo = Container.get(Context.USER_REPO);
+    this.makeErrorResponse = Container.get(Context.MAKE_ERROR_RESPONSE);
   }
 
   async getUser(email: string) {

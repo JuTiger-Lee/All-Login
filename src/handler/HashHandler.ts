@@ -3,11 +3,13 @@ import bcrypt from "bcrypt";
 import Container from "typedi";
 import jwt from "jsonwebtoken";
 import { ErrorResponseable } from "@/utils/make-response";
+import Context from "@/Context";
 
 export default class HashHanlder {
   makeErrorResponse: ErrorResponseable;
+
   constructor() {
-    this.makeErrorResponse = Container.get("MakeErrorResponse");
+    this.makeErrorResponse = Container.get(Context.MAKE_ERROR_RESPONSE);
     this.makeErrorResponse.init(500, "Hash Handler Error");
   }
 
@@ -15,7 +17,7 @@ export default class HashHanlder {
     return crypto.createHash("sha256").update(hash).digest("base64");
   }
 
-  decodeToken(encryptToken: string) {
+  getDecodeToken(encryptToken: string) {
     const token = encryptToken && encryptToken.split(" ")[1];
 
     return jwt.decode(token);
