@@ -12,6 +12,8 @@
 
 - npm run dev
 
+## Oatuh 란?
+
 ## Prisma 사용법
 
 ### 시작
