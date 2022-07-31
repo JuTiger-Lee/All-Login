@@ -1,8 +1,17 @@
+import Context from "@/Context";
 import HashHanlder from "@/handler/HashHandler";
+import { ErrorResponseable } from "@/utils/make-response";
 import express from "express";
 import passport from "passport";
+import Container from "typedi";
 
 export default class AuthGuard {
+  private readonly makeErrorResponse: ErrorResponseable;
+
+  constructor() {
+    this.makeErrorResponse = Container.get(Context.MAKE_ERROR_RESPONSE);
+  }
+
   checkAuth(
     req: express.Request,
     res: express.Response,
@@ -11,22 +20,30 @@ export default class AuthGuard {
     passport.authenticate("jwt", { session: false }, (error, user, info) => {
       try {
         if (error) {
-          // ::Todo auth error
+          this.makeErrorResponse.init(500, "Authentication Error");
+          this.makeErrorResponse.setResponse({
+            err: error,
+            httpStatus: 500,
+            name: "Authentication error",
+          });
+
+          throw this.makeErrorResponse.getResponse();
         }
 
         if (!user) {
-          console.log("::info name", info.name);
-          if (info.name === "TokenExpiredError") {
-            // ::Todo 토큰 만료
-          } else {
-            // ::Todo 인증된 사용자 아님
-          }
+          this.makeErrorResponse.init(500, info.name);
+          this.makeErrorResponse.setResponse({
+            err: {},
+            httpStatus: 500,
+            name: "Auth No User",
+          });
+
+          throw this.makeErrorResponse.getResponse();
         }
 
         const hashHanlder = new HashHanlder();
 
         req.user = hashHanlder.getDecodeToken(req.headers.authorization);
-        console.log("rrr", req.user);
 
         return next();
       } catch (err) {
