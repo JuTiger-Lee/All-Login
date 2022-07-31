@@ -10,7 +10,7 @@ export default class HashHanlder {
 
   constructor() {
     this.makeErrorResponse = Container.get(Context.MAKE_ERROR_RESPONSE);
-    this.makeErrorResponse.init(500, "Hash Handler Error");
+    this.makeErrorResponse.init(500, "Hash Error");
   }
 
   private getCryptoHash(hash: string): string {
@@ -18,9 +18,7 @@ export default class HashHanlder {
   }
 
   getDecodeToken(encryptToken: string) {
-    const token = encryptToken && encryptToken.split(" ")[1];
-
-    return jwt.decode(token);
+    return jwt.decode(encryptToken && encryptToken.split(" ")[1]);
   }
 
   compare(dbPassword: string, comparePassword: string): boolean {
@@ -40,9 +38,7 @@ export default class HashHanlder {
 
   getHash(hash: string): string {
     try {
-      const resultHash = this.getCryptoHash(hash);
-
-      return bcrypt.hashSync(resultHash, 10);
+      return bcrypt.hashSync(this.getCryptoHash(hash), 10);
     } catch (err) {
       this.makeErrorResponse.setResponse({
         err,
