@@ -2,20 +2,50 @@ import express from "express";
 import jwt from "jsonwebtoken";
 import env from "env-var";
 import UserServicesable from "@/services/interfaces/UserServicesable";
-import { SuccessResponseable } from "@/utils/make-response";
+import { ErrorResponseable, SuccessResponseable } from "@/utils/make-response";
 import Container from "typedi";
 import HashHanlder from "@/handler/HashHandler";
 import Context from "@/Context";
 import passport from "passport";
+import axios from "axios";
 
-export default class UserController extends Context {
-  private readonly userServices: UserServicesable;
-  private readonly makeSuccessResponse: SuccessResponseable;
+class BaseUserController extends Context {
+  protected readonly userServices: UserServicesable;
+  protected readonly makeErrorResponse: ErrorResponseable;
+  protected readonly makeSuccessResponse: SuccessResponseable;
 
   constructor() {
     super();
     this.userServices = Container.get(Context.USER_SERVICES);
+    this.makeErrorResponse = Container.get(Context.MAKE_ERROR_RESPONSE);
     this.makeSuccessResponse = Container.get(Context.MAKE_SUCCESS_RESPONSE);
+  }
+}
+
+export default class UserController extends BaseUserController {
+  userLocal: UserLocal;
+  userKakao: UserKakao;
+
+  constructor() {
+    super();
+    this.userLocal = new UserLocal();
+    this.userKakao = new UserKakao();
+  }
+
+  testAuth(
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) {
+    res.status(200).send("Auth Success");
+  }
+}
+
+// Sign Class
+
+class UserLocal extends BaseUserController {
+  constructor() {
+    super();
   }
 
   async signUp(
@@ -50,26 +80,40 @@ export default class UserController extends Context {
     res: express.Response,
     next: express.NextFunction
   ) {
-    try {
-      passport.authenticate("local", (passportError, user, info) => {
+    passport.authenticate("local", (passportError, user, info) => {
+      try {
         if (passportError) {
-          console.log("::PassportError", passportError);
-          // Todo Error
+          this.makeErrorResponse.init(500, "SingIn Error");
+          this.makeErrorResponse.setResponse({
+            err: passportError,
+            httpStatus: 500,
+            name: "Passport Error",
+          });
+
+          throw this.makeErrorResponse.getResponse();
         }
 
         if (info) {
-          console.log("::info", info.message);
-          if (info.message === "Non Existent User") {
-            // Todo Error ::존재하지 않는 사용자
-          } else if (info.message === "Wrong Password") {
-            // Todo Error :: 비밀번호 불일치
-          }
+          this.makeErrorResponse.init(500, info.message);
+          this.makeErrorResponse.setResponse({
+            err: {},
+            httpStatus: 500,
+            name: "Passport Info Error",
+          });
+
+          throw this.makeErrorResponse.getResponse();
         }
 
         req.login(user, { session: false }, (loginError) => {
           if (loginError) {
-            console.log("::loginError", loginError);
-            // Todo Error
+            this.makeErrorResponse.init(500, "SingIn Error");
+            this.makeErrorResponse.setResponse({
+              err: loginError,
+              httpStatus: 500,
+              name: "Login Error",
+            });
+
+            throw this.makeErrorResponse.getResponse();
           }
 
           const token = jwt.sign(
@@ -82,22 +126,43 @@ export default class UserController extends Context {
             }
           );
 
-          this.makeSuccessResponse.init(200, "Sign In Success");
+          this.makeSuccessResponse.init(200, "SignIn Success");
           this.makeSuccessResponse.setResponse([{ token }]);
+          return res.status(200).json(this.makeSuccessResponse.getResponse());
         });
-      })(req, res);
+      } catch (err) {
+        return next(err);
+      }
+    })(req, res, next);
+  }
+}
 
-      return res.status(200).json(this.makeSuccessResponse.getResponse());
-    } catch (err) {
-      return next(err);
-    }
+class UserKakao extends BaseUserController {
+  constructor() {
+    super();
   }
 
-  testAuth(
+  async signOut(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
   ) {
-    res.status(200).send("Auth Success");
+    try {
+      const accesssToken = req.query.accesssToken;
+      const param = {};
+      const headerOption = {
+        headers: { Authorization: `Bearer ${accesssToken}` },
+      };
+
+      await axios.post(
+        "https://kapi.kakao.com/v1/user/unlink",
+        param,
+        headerOption
+      );
+
+      return res.redirect("/");
+    } catch (err) {
+      return next(err);
+    }
   }
 }
