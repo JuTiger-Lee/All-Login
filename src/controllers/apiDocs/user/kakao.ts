@@ -1,12 +1,6 @@
 import { PathItem } from "swagger-jsdoc";
 
 export default {
-  // "/api/user/kakao": {
-  //   get: {
-  //     tags: ["User"],
-  //     summary: "카카오 사용자 로그인 (개발 중)",
-  //   },
-  // } as PathItem,
   "/api/user/kakao/sign-out": {
     get: {
       tags: ["User"],
