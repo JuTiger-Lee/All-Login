@@ -60,7 +60,7 @@ class Jwt implements VerifyPassport<typeof passportJWT.Strategy> {
     passport.use(
       this.passportName,
       new this.Strategy(jwtOption, async (payload, done) => {
-        const user = await userService.getUser(payload.email);
+        const user = await userService.getUser(payload.email, "LOCAL");
 
         if (!user) {
           return done(null, false, { message: "Unauthorized" });
@@ -90,7 +90,7 @@ class Local implements VerifyPassport<typeof passportLocal.Strategy> {
     passport.use(
       this.passportName,
       new this.Strategy(passportOption, async (email, password, done) => {
-        const user = await userService.getUser(email);
+        const user = await userService.getUser(email, "LOCAL");
 
         if (!user) {
           return done(null, false, { message: "Non Existent User" });
@@ -123,23 +123,43 @@ class Kakao implements VerifyPassport<typeof passportKakao.Strategy> {
       new this.Strategy(
         {
           clientID: env.get("KAKAO_CLIENT_ID").asString(),
+          clientSecret: "",
           callbackURL: "http://localhost:8080/api/user/kakao/callback",
         },
-        (accessToken, refreshToken, profile, done) => {
-          console.log("accessToken", accessToken);
-          console.log("refreshToken", refreshToken);
-          console.log("profile", profile);
-          done(null, {});
+        async (accessToken, refreshToken, profile, done) => {
+          try {
+            console.log("accessToken", accessToken);
+            const hashHandler = new HashHanlder();
+            const loginType = "KAKAO";
+            const kakaoEmail =
+              profile._json && profile._json.kakao_account.email;
+            const kakaoUser = await userService.getUser(kakaoEmail, loginType);
+
+            const doneData = {
+              accessToken,
+              refreshToken,
+            };
+
+            if (kakaoUser) {
+              return done(null, { ...doneData, kakaoUser: kakaoUser });
+            }
+
+            const kakaoNewUser = await userService.saveUser({
+              loginType,
+              email: kakaoEmail,
+              name: profile.displayName,
+              password: hashHandler.getHash(hashHandler.getRandomSuffix(5)),
+            });
+
+            return done(null, {
+              ...doneData,
+              kakaoUser: kakaoNewUser,
+            });
+          } catch (err) {
+            return done(err);
+          }
         }
       )
     );
   }
 }
-
-// class Facebook implements VerifyPassport {
-//   verify(userService: UserServicesable): void {}
-// }
-
-// class Google implements VerifyPassport {
-//   verify(userService: UserServicesable): void {}
-// }
