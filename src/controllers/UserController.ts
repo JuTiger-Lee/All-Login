@@ -126,6 +126,7 @@ class UserLocal extends BaseUserController {
           const token = jwt.sign(
             {
               email: user.email,
+              loginType: "LOCAL",
             },
             env.get("AUTH_KEY").asString(),
             {
@@ -195,6 +196,9 @@ class UserKakao extends BaseUserController {
           const token = jwt.sign(
             {
               email: user.kakaoUser.email,
+              accessToken: user.accessToken,
+              refreshToken: user.refreshToken,
+              loginType: "KAKAO",
             },
             env.get("AUTH_KEY").asString(),
             {
@@ -218,12 +222,13 @@ class UserKakao extends BaseUserController {
     next: express.NextFunction
   ) {
     try {
-      const accesssToken = req.query.accessToken;
+      const accesssToken = req.user["accessToken"];
       const param = {};
       const headerOption = {
         headers: { Authorization: `Bearer ${accesssToken}` },
       };
 
+      console.log("accesssToken =>>", accesssToken);
       await axios.post(
         "https://kapi.kakao.com/v1/user/unlink",
         param,

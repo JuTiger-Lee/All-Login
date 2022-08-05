@@ -5,6 +5,7 @@ import env from "env-var";
 import dotenv from "dotenv";
 import PassportHandler from "@/handler/PassportHandler";
 import ApiDocs from "@/controllers/apiDocs/ApiDocs";
+import { PRODUCTION_MODE } from "@/utils/util";
 
 class App {
   public readonly server: express.Application;
@@ -40,7 +41,7 @@ class App {
     apiDocs.init();
     const { swaggerUI, specs, setUpOption } = apiDocs.getSwaggerOption();
 
-    if (env.get("NODE_ENV").asString() !== "production") {
+    if (env.get("NODE_ENV").asString() !== PRODUCTION_MODE) {
       this.server.use(
         "/api-docs",
         swaggerUI.serve,

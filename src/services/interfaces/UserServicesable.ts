@@ -1,14 +1,9 @@
 import { user } from "@prisma/client";
+import { LOGINT_TYPE } from "@/utils/util";
 
 export default interface UserServicesable {
-  getUser(
-    email: string,
-    loginType: "GOOGLE" | "KAKAO" | "FACEBOOK" | "LOCAL"
-  ): Promise<user>;
-  checkEmail(
-    email: string,
-    loginType: "GOOGLE" | "KAKAO" | "FACEBOOK" | "LOCAL"
-  ): Promise<void>;
+  getUser(email: string, loginType: LOGINT_TYPE): Promise<user>;
+  checkEmail(email: string, loginType: LOGINT_TYPE): Promise<void>;
   checkName(name: string): Promise<void>;
   saveUser({
     email,
@@ -19,6 +14,6 @@ export default interface UserServicesable {
     email: string;
     name: string;
     password: string;
-    loginType: "GOOGLE" | "KAKAO" | "FACEBOOK" | "LOCAL";
+    loginType: LOGINT_TYPE;
   }): Promise<void>;
 }

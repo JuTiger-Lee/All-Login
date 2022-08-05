@@ -8,6 +8,7 @@ import Container from "typedi";
 import UserServicesable from "@/services/interfaces/UserServicesable";
 import HashHanlder from "@/handler/HashHandler";
 import Context from "@/Context";
+import { PRODUCTION_MODE } from "@/utils/util";
 
 interface VerifyPassport<T> {
   Strategy: T;
@@ -28,7 +29,7 @@ export default class PassportHandler {
 
   init() {
     for (let verifyIdx = 0; verifyIdx < this.verifys.length; verifyIdx += 1) {
-      if (env.get("NODE_ENV").asString() !== "production") {
+      if (env.get("NODE_ENV").asString() !== PRODUCTION_MODE) {
         console.log(
           "::Passport Collection",
           this.verifys[verifyIdx].constructor.name.toUpperCase()
@@ -60,7 +61,10 @@ class Jwt implements VerifyPassport<typeof passportJWT.Strategy> {
     passport.use(
       this.passportName,
       new this.Strategy(jwtOption, async (payload, done) => {
-        const user = await userService.getUser(payload.email, "LOCAL");
+        const user = await userService.getUser(
+          payload.email,
+          payload.loginType
+        );
 
         if (!user) {
           return done(null, false, { message: "Unauthorized" });
@@ -128,7 +132,6 @@ class Kakao implements VerifyPassport<typeof passportKakao.Strategy> {
         },
         async (accessToken, refreshToken, profile, done) => {
           try {
-            console.log("accessToken", accessToken);
             const hashHandler = new HashHanlder();
             const loginType = "KAKAO";
             const kakaoEmail =

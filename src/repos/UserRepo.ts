@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import UserRepoable from "@/repos/interfaces/UserRepoable";
 import { Service } from "typedi";
+import { LOGINT_TYPE } from "@/utils/util";
 
 @Service()
 export default class UserRepo implements UserRepoable {
@@ -8,10 +9,7 @@ export default class UserRepo implements UserRepoable {
     this.prisma = prisma;
   }
 
-  async findEmail(
-    email: string,
-    loginType: "GOOGLE" | "KAKAO" | "FACEBOOK" | "LOCAL"
-  ) {
+  async findEmail(email: string, loginType: LOGINT_TYPE) {
     return await this.prisma.user.findFirst({
       where: {
         email,
@@ -37,7 +35,7 @@ export default class UserRepo implements UserRepoable {
     email: string;
     name: string;
     password: string;
-    loginType: "GOOGLE" | "KAKAO" | "FACEBOOK" | "LOCAL";
+    loginType: LOGINT_TYPE;
   }) {
     await this.prisma.user.create({
       data: {

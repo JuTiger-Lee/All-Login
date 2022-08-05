@@ -1,10 +1,8 @@
 import { user } from "@prisma/client";
+import { LOGINT_TYPE } from "@/utils/util";
 
 export default interface UserRepoable {
-  findEmail(
-    email: string,
-    loginType: "GOOGLE" | "KAKAO" | "FACEBOOK" | "LOCAL"
-  ): Promise<user>;
+  findEmail(email: string, loginType: LOGINT_TYPE): Promise<user>;
   findName(name: string): Promise<user>;
   createUser({
     email,
@@ -15,6 +13,6 @@ export default interface UserRepoable {
     email: string;
     name: string;
     password: string;
-    loginType: "GOOGLE" | "KAKAO" | "FACEBOOK" | "LOCAL";
+    loginType: LOGINT_TYPE;
   }): Promise<void>;
 }

@@ -5,13 +5,10 @@ export default {
     get: {
       tags: ["User"],
       summary: "카카오 사용자 로그아웃 (개발 중)",
-      parameters: [
+      // 인증
+      security: [
         {
-          in: "query",
-          name: "accessToken",
-          required: true,
-          description: "kakao access Token",
-          type: "string",
+          bearerAuth: [],
         },
       ],
       responses: {

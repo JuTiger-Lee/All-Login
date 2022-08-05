@@ -3,6 +3,7 @@ import UserRepoable from "@/repos/interfaces/UserRepoable";
 import UserServicesable from "@/services/interfaces/UserServicesable";
 import { ErrorResponseable } from "@/utils/make-response";
 import Container, { Service } from "typedi";
+import { LOGINT_TYPE } from "@/utils/util";
 
 @Service()
 export default class UserServices implements UserServicesable {
@@ -14,17 +15,11 @@ export default class UserServices implements UserServicesable {
     this.makeErrorResponse = Container.get(Context.MAKE_ERROR_RESPONSE);
   }
 
-  async getUser(
-    email: string,
-    loginType: "GOOGLE" | "KAKAO" | "FACEBOOK" | "LOCAL"
-  ) {
+  async getUser(email: string, loginType: LOGINT_TYPE) {
     return await this.userRepo.findEmail(email, loginType);
   }
 
-  async checkEmail(
-    email: string,
-    loginType: "GOOGLE" | "KAKAO" | "FACEBOOK" | "LOCAL"
-  ) {
+  async checkEmail(email: string, loginType: LOGINT_TYPE) {
     const user = await this.userRepo.findEmail(email, loginType);
 
     if (user) {
@@ -61,7 +56,7 @@ export default class UserServices implements UserServicesable {
     email: string;
     name: string;
     password: string;
-    loginType: "GOOGLE" | "KAKAO" | "FACEBOOK" | "LOCAL";
+    loginType: LOGINT_TYPE;
   }) {
     await this.userRepo.createUser({ email, name, password, loginType });
   }
