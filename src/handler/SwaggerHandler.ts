@@ -5,7 +5,10 @@ const swaggerOpenApiVersion = "3.0.0";
 const swaggerInfo = {
   title: "ALL-LOGIN-API",
   version: "0.0.1",
-  description: "<h2>All Login API</h2>",
+  description:
+    "<h2>All Login API</h2> \n" +
+    "<h3>Repository</h3dd>" +
+    'all-login: <a href="https://github.com/JuTiger-Lee/All-Login">https://github.com/JuTiger-Lee/All-Login</a> <br/>',
 };
 
 const swaggerTags = [
