@@ -1,6 +1,5 @@
 import express from "express";
 import UserController from "@/controllers/UserController";
-import passport from "passport";
 
 const router = express.Router();
 const userController = new UserController();
@@ -16,18 +15,14 @@ router.post("/auth/test", (req, res, next) =>
   userController.testAuth(req, res, next)
 );
 
-router.get("/kakao", passport.authenticate("kakao"));
-router.get(
-  "/kakao/callback",
-  passport.authenticate("kakao", {
-    successRedirect: "/api/user/kakao/success",
-    session: false,
-    failureRedirect: "/",
-  })
-);
+router.get("/kakao", (req, res, next) => {
+  userController.userKakao.signIn(req, res, next);
+});
+router.get("/kakao/callback", (req, res, next) => {
+  userController.userKakao.signInCallback(req, res, next);
+});
 router.get("/kakao/sign-out", async (req, res, next) =>
   userController.userKakao.signOut(req, res, next)
 );
-router.get("/kakao/success", (req, res) => res.send("kakao SignIn success"));
 
 export default router;
