@@ -54,16 +54,23 @@ class UserLocal extends BaseUserController {
     next: express.NextFunction
   ) {
     try {
-      const { email, password }: { email: string; password: string } = req.body;
+      const {
+        email,
+        name,
+        password,
+      }: { email: string; name: string; password: string } = req.body;
 
-      await this.userServices.checkEmail(email);
+      await this.userServices.checkEmail(email, "LOCAL");
+      await this.userServices.checkName(name);
 
       const hashHanlder = new HashHanlder();
       const hashPassword = hashHanlder.getHash(password);
 
       this.userServices.saveUser({
         email,
+        name,
         password: hashPassword,
+        loginType: "LOCAL",
       });
 
       this.makeSuccessResponse.init(200, "Sign Up Success");
@@ -142,13 +149,76 @@ class UserKakao extends BaseUserController {
     super();
   }
 
+  async signIn(
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) {
+    passport.authenticate("kakao")(req, res, next);
+  }
+
+  async signInCallback(
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) {
+    passport.authenticate(
+      "kakao",
+      {
+        session: false,
+        failureRedirect: "/",
+      },
+      (err, user) => {
+        try {
+          if (err) {
+            this.makeErrorResponse.init(500, "Kakao Authentication Error");
+            this.makeErrorResponse.setResponse({
+              err,
+              httpStatus: 500,
+              name: "Kakao Authentication error",
+            });
+
+            throw this.makeErrorResponse.getResponse();
+          }
+
+          if (!user) {
+            this.makeErrorResponse.init(500, "Kakao Auth No User");
+            this.makeErrorResponse.setResponse({
+              err: {},
+              httpStatus: 500,
+              name: "Auth No User",
+            });
+
+            throw this.makeErrorResponse.getResponse();
+          }
+
+          const token = jwt.sign(
+            {
+              email: user.kakaoUser.email,
+            },
+            env.get("AUTH_KEY").asString(),
+            {
+              expiresIn: "3600m",
+            }
+          );
+
+          this.makeSuccessResponse.init(200, "SignIn Success");
+          this.makeSuccessResponse.setResponse([{ token }]);
+          return res.status(200).json(this.makeSuccessResponse.getResponse());
+        } catch (err) {
+          return next(err);
+        }
+      }
+    )(req, res, next);
+  }
+
   async signOut(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
   ) {
     try {
-      const accesssToken = req.query.accesssToken;
+      const accesssToken = req.query.accessToken;
       const param = {};
       const headerOption = {
         headers: { Authorization: `Bearer ${accesssToken}` },
