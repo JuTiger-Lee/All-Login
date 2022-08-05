@@ -17,6 +17,10 @@ export default class HashHanlder {
     return crypto.createHash("sha256").update(hash).digest("base64");
   }
 
+  getRandomSuffix(randomNum: number) {
+    return crypto.randomBytes(randomNum).toString("hex");
+  }
+
   getDecodeToken(encryptToken: string) {
     return jwt.decode(encryptToken && encryptToken.split(" ")[1]);
   }
