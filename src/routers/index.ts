@@ -4,7 +4,12 @@ import ErrorMiddleware from "@/middlewares/error";
 import userRouter from "@/routers/user";
 
 export default (app: express.Application) => {
-  const authURList = ["/api/user/auth/test", "/api/user/kakao/sign-out"];
+  const authURList = [
+    "/api/user/auth/test",
+    "/api/user/kakao/sign-out",
+    "/api/user/facebook/sign-out",
+    "/api/user/google/sign-out",
+  ];
 
   app.use(authURList, (req, res, next) =>
     new AuthGuard().checkAuth(req, res, next)
