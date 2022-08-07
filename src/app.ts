@@ -16,7 +16,7 @@ class App {
     this.server = express();
   }
 
-  async bootstrap() {
+  bootstrap() {
     this.checkEnv();
     this.initExpress();
     this.initSwagger();
