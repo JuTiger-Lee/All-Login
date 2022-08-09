@@ -3,7 +3,7 @@ import passport from "passport";
 import axios from "axios";
 import jwt from "jsonwebtoken";
 import env from "env-var";
-import BaseUserController from "@/controllers/BaseUserController";
+import BaseController from "@/controllers/BaseController";
 import HashHanlder from "@/handler/HashHandler";
 
 interface UserSocial {
@@ -49,7 +49,7 @@ function makeToken({
   );
 }
 
-export class UserLocal extends BaseUserController {
+export class UserLocal extends BaseController {
   constructor() {
     super();
   }
@@ -145,7 +145,7 @@ export class UserLocal extends BaseUserController {
   }
 }
 
-export class UserKakao extends BaseUserController implements UserSocial {
+export class UserKakao extends BaseController implements UserSocial {
   constructor() {
     super();
   }
@@ -235,7 +235,7 @@ export class UserKakao extends BaseUserController implements UserSocial {
   }
 }
 
-export class UserFacebook extends BaseUserController implements UserSocial {
+export class UserFacebook extends BaseController implements UserSocial {
   constructor() {
     super();
   }
@@ -319,7 +319,7 @@ export class UserFacebook extends BaseUserController implements UserSocial {
   }
 }
 
-export class UserGoogle extends BaseUserController implements UserSocial {
+export class UserGoogle extends BaseController implements UserSocial {
   constructor() {
     super();
   }

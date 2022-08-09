@@ -5,9 +5,9 @@ import {
   UserFacebook,
   UserGoogle,
 } from "@/controllers/user.sign.controller";
-import BaseUserController from "@/controllers/BaseUserController";
+import BaseController from "@/controllers/BaseController";
 
-export default class UserController extends BaseUserController {
+export default class UserController extends BaseController {
   userLocal: UserLocal;
   userKakao: UserKakao;
   userFacebook: UserFacebook;
