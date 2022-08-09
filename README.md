@@ -12,6 +12,16 @@
 
 - npm run dev
 
+## 설명
+
+- Passport를 이용해서 로컬 로그인, 소셜 로그인 기능을 구현해놓았습니다.
+
+### 적용 소셜 로그인
+
+- Kakao
+- Facebook(로그아웃 기능 안됨::SDK로만 되는걸로 추측)
+- Google
+
 ## Prisma 사용법
 
 ### 시작
