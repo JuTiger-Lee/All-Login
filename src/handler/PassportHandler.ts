@@ -5,6 +5,7 @@ import passportJWT from "passport-jwt";
 import * as passportKakao from "passport-kakao";
 import passportFacebook from "passport-facebook";
 import passportGoogle from "passport-google-oauth20";
+import passportNaver from 'passport-naver';
 import env from "env-var";
 import Container from "typedi";
 import UserServicesable from "@/services/interfaces/UserServicesable";
@@ -25,7 +26,8 @@ export default class PassportHandler {
     passportLocal.Strategy ||
     passportKakao.Strategy ||
     passportFacebook.Strategy ||
-    passportGoogle.Strategy;
+    passportGoogle.Strategy ||
+    passportNaver.Strategy;
   private verifys: Array<
     VerifyPassportable<typeof PassportHandler.passportType>
   >;
@@ -38,6 +40,7 @@ export default class PassportHandler {
       new Kakao(),
       new Facebook(),
       new Google(),
+      new Naver(),
     ];
   }
 
@@ -290,6 +293,30 @@ class Google implements VerifyPassportable<typeof passportGoogle.Strategy> {
             return done(err);
           }
         }
+      )
+    );
+  }
+}
+
+class Naver implements VerifyPassportable<typeof passportNaver.Strategy> {
+  Strategy: typeof passportNaver.Strategy;
+  passportName: string;
+
+  constructor() {
+    this.Strategy = passportNaver.Strategy;
+    this.passportName = Naver.prototype.constructor.name.toLowerCase();
+  }
+
+  verify(userService: UserServicesable): void {
+    passport.use(
+      this.passportName,
+      new this.Strategy(
+        {
+          clientID: "",
+          clientSecret: "",
+          callbackURL: ""
+        },
+        async (accessToken, refreshToken, profile, done) => {}
       )
     );
   }

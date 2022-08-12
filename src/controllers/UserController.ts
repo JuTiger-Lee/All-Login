@@ -4,6 +4,7 @@ import {
   UserKakao,
   UserFacebook,
   UserGoogle,
+  UserNaver
 } from "@/controllers/user.sign.controller";
 import BaseController from "@/controllers/BaseController";
 
@@ -12,6 +13,7 @@ export default class UserController extends BaseController {
   userKakao: UserKakao;
   userFacebook: UserFacebook;
   userGoogle: UserGoogle;
+  userNaver: UserNaver;
 
   constructor() {
     super();
@@ -19,6 +21,7 @@ export default class UserController extends BaseController {
     this.userKakao = new UserKakao();
     this.userFacebook = new UserFacebook();
     this.userGoogle = new UserGoogle();
+    this.userNaver = new UserNaver();
   }
 
   testAuth(

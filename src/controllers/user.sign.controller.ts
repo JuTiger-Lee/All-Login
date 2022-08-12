@@ -406,3 +406,31 @@ export class UserGoogle extends BaseController implements UserSocial {
     }
   }
 }
+
+
+export class UserNaver extends BaseController implements UserSocial {
+  constructor() {
+    super();
+  }
+
+  async signIn(
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) {
+  }
+
+  async signInCallback(
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) {
+  }
+
+  async signOut(
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) {
+  }
+}

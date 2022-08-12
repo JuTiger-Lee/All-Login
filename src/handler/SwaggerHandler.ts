@@ -7,7 +7,7 @@ const swaggerInfo = {
   version: "0.0.1",
   description:
     "<h2>All Login API</h2> \n" +
-    "<h3>Repository</h3dd>" +
+    "<h3>Repository</h3>" +
     'all-login: <a href="https://github.com/JuTiger-Lee/All-Login">https://github.com/JuTiger-Lee/All-Login</a> <br/>',
 };
 

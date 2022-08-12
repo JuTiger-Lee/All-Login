@@ -54,4 +54,18 @@ router.get("/google/sign-out", async (req, res, next) =>
   userController.userGoogle.signOut(req, res, next)
 );
 
+// naver
+
+router.get('/naver', (req, res, next) => 
+  userController.userNaver.signIn(req, res, next)
+);
+
+router.get('/naver/callback', (req, res, next) => 
+  userController.userNaver.signInCallback(req, res, next)
+);
+
+router.get('/naver/sign-out', (req, res, next) => 
+  userController.userNaver.signOut(req, res, next)
+);
+
 export default router;
