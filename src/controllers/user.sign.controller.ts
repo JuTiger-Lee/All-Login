@@ -306,11 +306,12 @@ export class UserFacebook extends BaseController implements UserSocial {
     next: express.NextFunction
   ) {
     try {
-      const accessToken = req.user["accessToken"];
+      /** 페이스북은 로그아웃 API를 제공하지 않는거같다. */
+      // const accessToken = req.user["accessToken"];
 
-      await axios.get(
-        `https://www.facebook.com/logout.php?ref=ds&h=${accessToken}`
-      );
+      // await axios.get(
+      //   `https://www.facebook.com/logout.php?ref=ds&h=${accessToken}`
+      // );
 
       return res.redirect("/");
     } catch (err) {
@@ -407,7 +408,6 @@ export class UserGoogle extends BaseController implements UserSocial {
   }
 }
 
-
 export class UserNaver extends BaseController implements UserSocial {
   constructor() {
     super();
@@ -418,6 +418,7 @@ export class UserNaver extends BaseController implements UserSocial {
     res: express.Response,
     next: express.NextFunction
   ) {
+    passport.authenticate("naver")(req, res, next);
   }
 
   async signInCallback(
@@ -425,6 +426,51 @@ export class UserNaver extends BaseController implements UserSocial {
     res: express.Response,
     next: express.NextFunction
   ) {
+    passport.authenticate(
+      "naver",
+      {
+        session: false,
+        failureRedirect: "/",
+      },
+      (err, user) => {
+        try {
+          if (err) {
+            this.makeErrorResponse.init(500, "Authentication Error");
+            this.makeErrorResponse.setResponse({
+              err,
+              httpStatus: 500,
+              name: "Naver Authentication error",
+            });
+
+            throw this.makeErrorResponse.getResponse();
+          }
+
+          if (!user) {
+            this.makeErrorResponse.init(500, "Auth No User");
+            this.makeErrorResponse.setResponse({
+              err: {},
+              httpStatus: 500,
+              name: "Naver Auth No User",
+            });
+
+            throw this.makeErrorResponse.getResponse();
+          }
+
+          const token = makeToken({
+            email: user.verifyedUser.email,
+            accessToken: user.accessToken,
+            refreshToken: user.refreshToken,
+            loginType: "NAVER",
+          });
+
+          this.makeSuccessResponse.init(200, "SignIn Success");
+          this.makeSuccessResponse.setResponse([{ token }]);
+          return res.status(200).json(this.makeSuccessResponse.getResponse());
+        } catch (err) {
+          return next(err);
+        }
+      }
+    )(req, res, next);
   }
 
   async signOut(
@@ -432,5 +478,21 @@ export class UserNaver extends BaseController implements UserSocial {
     res: express.Response,
     next: express.NextFunction
   ) {
+    try {
+      /** 네이버는 로그아웃 API를 제공하지 않는거같다. */
+      // const accessToken = req.user["accessToken"];
+
+      // await axios.get(
+      //   `https://nid.naver.com/oauth2.0/token?grant_type=delete&client_id=${env.get(
+      //     "NAVER_CLIENT_ID"
+      //   )}&client_secret=${env.get(
+      //     "NAVER_CLIENT_SECRET"
+      //   )}&access_token=${accessToken}&service_provider=NAVER`
+      // );
+
+      return res.redirect("/");
+    } catch (err) {
+      return next(err);
+    }
   }
 }

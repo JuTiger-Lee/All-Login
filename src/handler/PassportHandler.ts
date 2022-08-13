@@ -5,7 +5,7 @@ import passportJWT from "passport-jwt";
 import * as passportKakao from "passport-kakao";
 import passportFacebook from "passport-facebook";
 import passportGoogle from "passport-google-oauth20";
-import passportNaver from 'passport-naver';
+import passportNaver from "passport-naver";
 import env from "env-var";
 import Container from "typedi";
 import UserServicesable from "@/services/interfaces/UserServicesable";
@@ -146,7 +146,7 @@ class Kakao implements VerifyPassportable<typeof passportKakao.Strategy> {
       new this.Strategy(
         {
           clientID: env.get("KAKAO_CLIENT_ID").asString(),
-          clientSecret: "",
+          clientSecret: env.get("KAKAO_CLIENT_SECRET").asString(),
           callbackURL: "/api/user/kakao/callback",
         },
         async (accessToken, refreshToken, profile, done) => {
@@ -206,7 +206,6 @@ class Facebook implements VerifyPassportable<typeof passportFacebook.Strategy> {
         },
         async (accessToken, refreshToken, profile, done) => {
           try {
-            console.log("accessToken =>>", accessToken);
             const hashHandler = new HashHanlder();
             const loginType = "FACEBOOK";
             // 페이스북에서 정상적인 사용자 이메일을 받으려면 http가 아닌 https로 해야한다.
@@ -312,11 +311,41 @@ class Naver implements VerifyPassportable<typeof passportNaver.Strategy> {
       this.passportName,
       new this.Strategy(
         {
-          clientID: "",
-          clientSecret: "",
-          callbackURL: ""
+          clientID: env.get("NAVER_CLIENT_ID").asString(),
+          clientSecret: env.get("NAVER_CLIENT_SECRET").asString(),
+          callbackURL: "/api/user/naver/callback",
         },
-        async (accessToken, refreshToken, profile, done) => {}
+        async (accessToken, refreshToken, profile, done) => {
+          try {
+            const hashHandler = new HashHanlder();
+            const loginType = "NAVER";
+            const naverEmail = profile._json && profile._json.email;
+            const user = await userService.getUser(naverEmail, loginType);
+
+            const doneData = {
+              accessToken,
+              refreshToken,
+            };
+
+            if (user) {
+              return done(null, { ...doneData, verifyedUser: user });
+            }
+
+            const newUser = await userService.saveUser({
+              loginType,
+              email: naverEmail,
+              name: profile.displayName,
+              password: hashHandler.getHash(hashHandler.getRandomSuffix(5)),
+            });
+
+            return done(null, {
+              ...doneData,
+              verifyedUser: newUser,
+            });
+          } catch (err) {
+            return done(err);
+          }
+        }
       )
     );
   }

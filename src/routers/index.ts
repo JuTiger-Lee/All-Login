@@ -9,6 +9,7 @@ export default (app: express.Application) => {
     "/api/user/kakao/sign-out",
     "/api/user/facebook/sign-out",
     "/api/user/google/sign-out",
+    "/api/user/naver/sign-out",
   ];
 
   app.use(authURList, (req, res, next) =>

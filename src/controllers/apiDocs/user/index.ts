@@ -4,6 +4,7 @@ import authTest from "@/controllers/apiDocs/user/authTest";
 import kakao from "@/controllers/apiDocs/user/kakao";
 import facebook from "@/controllers/apiDocs/user/facebook";
 import google from "@/controllers/apiDocs/user/google";
+import naver from "@/controllers/apiDocs/user/naver";
 
 export default {
   ...signUp,
@@ -12,4 +13,5 @@ export default {
   ...kakao,
   ...facebook,
   ...google,
+  ...naver,
 };
