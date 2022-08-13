@@ -21,6 +21,7 @@
 - Kakao
 - Facebook(로그아웃 기능 안됨::SDK로만 되는걸로 추측)
 - Google
+- Naver(로그아웃 기능 안됨::네이버에서 로그아웃 API를 제공하지 않는거 같음)
 
 ## Prisma 사용법
 
